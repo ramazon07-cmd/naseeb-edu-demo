@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
+﻿@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap');
 
 :root {
   --purple: #4A1368;
@@ -525,6 +525,109 @@ select option, select optgroup { color: var(--text); background: var(--control-o
 .journey-progress h3 { margin: 7px 0 5px; font-size: 19px; }.journey-progress p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
 .journey-progress-bars { display: grid; gap: 12px; }.journey-progress-bars > div { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; }.journey-progress-bars header { display: contents; }.journey-progress-bars b, .journey-progress-bars strong { font-size: 11px; }.journey-progress-bars strong { color: var(--accent); }.journey-progress-bars .progress { width: 100%; height: 7px; }.journey-progress-bars small { color: var(--muted); font-size: 9px; }
 .student-progress-stack { min-width: 230px; display: grid; gap: 7px; }.student-progress-stack > div { display: grid; grid-template-columns: 58px 1fr 34px; align-items: center; gap: 7px; }.student-progress-stack span, .student-progress-stack b { font-size: 9px; }.student-progress-stack b { text-align: right; }.student-progress-stack .progress { width: 100%; }.student-progress-stack .progress i { height: 100%; display: block; background: var(--accent); border-radius: inherit; }.student-progress-stack > div:nth-child(2) .progress i { background: var(--progress-roadmap); }.student-progress-stack > div:nth-child(3) .progress i { background: var(--progress-overall); }.risk-note { display: block; width: max-content; margin-top: 5px; padding: 3px 6px; color: var(--danger); background: var(--danger-bg); border: 1px solid var(--danger-border); border-radius: 99px; font-size: 8px; font-weight: 800; text-transform: uppercase; }
+.journey-map { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: 12px; }
+.journey-module { display: flex; flex-direction: column; gap: 7px; padding: 15px; background: var(--surface-soft); border: 1px solid var(--border); border-radius: 12px; }
+.journey-module > header { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--muted); }
+.journey-module > header span { font-size: 9px; font-weight: 700; letter-spacing: .09em; }
+.journey-module b { font-size: 14px; }
+.journey-module p { margin: 0; flex: 1; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.journey-module > footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.journey-module.open { border-color: var(--accent); box-shadow: var(--shadow-card); }
+.journey-module.done { border-color: var(--success-border); background: var(--success-bg); }
+.journey-module.later { opacity: .62; }
+.journey-disclaimer { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+
+.challenge-items { display: grid; gap: 10px; }
+.challenge-items fieldset { margin: 0; padding: 14px 15px; background: var(--surface-soft); border: 1px solid var(--border); border-radius: 12px; }
+.challenge-items fieldset.answered { border-color: var(--success-border); }
+.challenge-items legend { display: flex; align-items: baseline; gap: 9px; padding: 0; font-size: 13px; line-height: 1.5; }
+.challenge-items legend span { color: var(--muted); font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.challenge-scale { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; margin-top: 12px; }
+.challenge-scale label { display: grid; justify-items: center; gap: 6px; padding: 9px 5px; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; }
+.challenge-scale label:hover { border-color: var(--accent); }
+.challenge-scale label span { color: var(--muted); font-size: 9px; line-height: 1.3; }
+.challenge-scale label:has(input:checked) { background: var(--selected-bg); border-color: var(--accent); }
+.challenge-scale label:has(input:checked) span { color: var(--text); font-weight: 700; }
+.challenge-scale label:has(input:focus-visible) { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.challenge-scale input { width: 15px; height: 15px; margin: 0; accent-color: var(--accent); }
+.challenge-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 16px; }
+.challenge-progress { display: grid; gap: 6px; margin-bottom: 14px; }
+.challenge-progress small { color: var(--muted); font-size: 10px; }
+.challenge-source { display: block; color: var(--muted); font-size: 9px; letter-spacing: .03em; }
+.sort-tally { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; margin-bottom: 14px; }
+.sort-tally > div { display: grid; justify-items: center; gap: 2px; padding: 8px 5px; text-align: center; background: var(--surface-soft); border: 1px solid var(--border); border-radius: 10px; }
+.sort-tally > div.full { background: var(--success-bg); border-color: var(--success-border); }
+.sort-tally b { font-size: 13px; font-variant-numeric: tabular-nums; }
+.sort-tally span { color: var(--muted); font-size: 9px; line-height: 1.3; }
+.challenge-scale label.full { opacity: .38; cursor: not-allowed; }
+.challenge-scale label.full:hover { border-color: var(--border); }
+
+/* The compact reading: one figure, five short lines, small type. */
+.summary-split { display: grid; grid-template-columns: minmax(230px, 300px) minmax(0, 1fr); gap: 20px; align-items: center; margin-bottom: 14px; }
+@media (max-width: 780px) { .summary-split { grid-template-columns: minmax(0, 1fr); } }
+.summary-lines { display: grid; gap: 9px; margin: 0; }
+.summary-lines > div { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 12px; align-items: baseline; padding-bottom: 8px; border-bottom: 1px solid var(--border-subtle); }
+.summary-lines > div:last-child { border-bottom: none; padding-bottom: 0; }
+.summary-lines dt { color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.summary-lines dd { margin: 0; font-size: 12.5px; font-weight: 600; line-height: 1.45; }
+@media (max-width: 560px) { .summary-lines > div { grid-template-columns: minmax(0, 1fr); gap: 2px; } }
+
+.record-fold > summary { display: flex; align-items: center; gap: 8px; padding: 10px 13px; background: var(--surface-soft); border: 1px solid var(--border); border-radius: 10px; cursor: pointer; list-style: none; font-size: 12px; font-weight: 700; }
+.record-fold > summary::-webkit-details-marker { display: none; }
+.record-fold > summary:hover { border-color: var(--accent); }
+.record-fold > summary:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.record-fold > summary svg { color: var(--accent); transition: transform .18s ease; flex: 0 0 auto; }
+.record-fold[open] > summary svg { transform: rotate(90deg); }
+/* A closed <details> stops hiding its content as soon as a child is given an
+   explicit display, which `display: grid` below does -- so hide it explicitly
+   rather than relying on the browser default. Without this the fold reads as
+   closed while showing every result underneath it. */
+.record-fold:not([open]) > *:not(summary) { display: none; }
+.record-fold-body { display: grid; gap: 14px; margin-top: 14px; }
+@media (prefers-reduced-motion: reduce) { .record-fold > summary svg { transition: none; } }
+
+.career-groups { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 26px; align-items: start; }
+@media (max-width: 720px) { .career-groups { grid-template-columns: minmax(0, 1fr); gap: 18px; } }
+.career-groups > div { display: grid; gap: 7px; align-content: start; }
+.career-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+/* Tight rows, no card chrome: the list is scanned, not read one box at a time.
+   Band lives in a 2px rail rather than a full border, so eight rows read as one
+   list instead of eight objects. */
+.career-list { display: grid; margin: 0; padding: 0; list-style: none; }
+.career-list li { display: flex; align-items: baseline; gap: 8px; padding: 6px 0 6px 11px; border-left: 2px solid var(--border); border-bottom: 1px solid var(--border-subtle); }
+.career-list li:last-child { border-bottom: none; }
+.career-list b { font-size: 12.5px; font-weight: 600; }
+.career-list small { color: var(--muted); font-size: 9.5px; margin-left: auto; text-align: right; white-space: nowrap; }
+/* Band is a gap-from-best, so the rail says "how much weaker than the top one". */
+.career-list li.strong { border-left-color: var(--success); }
+.career-list li.explore { border-left-color: var(--accent); }
+.career-list li.alternative { border-left-color: var(--border-strong); opacity: .78; }
+.badge.strong { background: var(--success-bg); color: var(--success); border-color: var(--success-border); }
+
+/* Shape left, numbers right. The numbers are not an accessible afterthought --
+   they are the reading, and the polygon is the glance. */
+.result-split { display: grid; grid-template-columns: minmax(250px, 330px) minmax(0, 1fr); gap: 22px; align-items: center; }
+@media (max-width: 780px) { .result-split { grid-template-columns: minmax(0, 1fr); } }
+
+.profile-polygon { margin: 0; display: grid; gap: 8px; justify-items: center; }
+.profile-polygon svg { width: 100%; max-width: 330px; height: auto; }
+/* Hairline grid one shade off the surface, never dashed. */
+.profile-polygon .ring { fill: none; stroke: var(--border); stroke-width: 1; }
+.profile-polygon .spoke { stroke: var(--border-subtle); stroke-width: 1; }
+/* Thin outline, faint fill: a filled shape exaggerates because area grows with
+   the square of the radius. */
+.profile-polygon .shape { fill: color-mix(in srgb, var(--accent) 24%, transparent); stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; }
+.profile-polygon .vertex { fill: var(--surface); stroke: var(--accent); stroke-width: 2; cursor: pointer; transition: r .12s ease; }
+.profile-polygon .vertex.on { fill: var(--accent); }
+.profile-polygon .axis-label { fill: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .04em; }
+.profile-polygon figcaption { color: var(--muted); font-size: 10px; line-height: 1.5; text-align: center; max-width: 300px; min-height: 30px; }
+.profile-polygon figcaption strong { color: var(--text); }
+@media (prefers-reduced-motion: reduce) { .profile-polygon .vertex { transition: none; } }
+
+.trait-list { display: grid; gap: 11px; margin-bottom: 15px; }
+.trait-row { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(90px, 1fr) auto; align-items: center; gap: 14px; }
+.trait-row b { display: block; font-size: 13px; }
+.trait-row small { color: var(--muted); font-size: 10px; }
 .student-dashboard-overview { display: grid; grid-template-columns: minmax(0,1.35fr) minmax(310px,.65fr); align-items: stretch; gap: 20px; }
 .student-dashboard-progress { min-width: 0; display: grid; align-content: start; gap: 20px; }
 .student-dashboard-overview .dashboard-discovery-rail { height: 100%; grid-template-rows: repeat(2,minmax(0,1fr)); }
@@ -815,3 +918,4 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--focus-color); o
   .roadmap-path-row:not(:last-of-type)::after { left: 33px; top: 72px; height: 38px; }
   .roadmap-node-card { padding: 12px; }
 }
+

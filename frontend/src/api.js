@@ -147,6 +147,13 @@ export const api = {
     method: 'POST',
     body: JSON.stringify(payload),
   }),
+  // Find Your Personality. Attempts are append-only: a retake is a new row, so
+  // there is deliberately no update or delete here.
+  challengeAttempts: (studentId) => listAll('challenge-attempts', studentId ? `?student=${encodeURIComponent(studentId)}` : ''),
+  saveChallengeAttempt: (payload) => request('/challenge-attempts/', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }),
   approveTask: (id) => request(`/tasks/${id}/approve/`, { method: 'POST' }),
   approveRoadmapMission: (id) => request(`/roadmap-missions/${id}/approve/`, { method: 'POST' }),
   approveStudentLevel: (id) => request(`/students/${id}/approve-level/`, { method: 'POST' }),

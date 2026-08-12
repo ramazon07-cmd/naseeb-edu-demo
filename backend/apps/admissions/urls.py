@@ -6,6 +6,7 @@ from .views import (
     ActivityLogViewSet,
     ApplicationViewSet,
     BookingViewSet,
+    ChallengeAttemptViewSet,
     ChannelMessageViewSet,
     CommunityPostViewSet,
     CollegeResearchView,
@@ -65,6 +66,7 @@ router.register('message-reports', MessageReportViewSet, basename='message-repor
 router.register('program-services', ProgramServiceViewSet, basename='program-services')
 router.register('resource-library', ResourceLibraryItemViewSet, basename='resource-library')
 router.register('store-items', StoreItemViewSet, basename='store-items')
+router.register('challenge-attempts', ChallengeAttemptViewSet, basename='challenge-attempts')
 
 urlpatterns = [
     path('dashboard/stats/', DashboardStatsView.as_view(), name='dashboard-stats'),

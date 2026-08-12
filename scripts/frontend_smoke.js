@@ -1,4 +1,4 @@
-const fs = require('fs');
+﻿const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
@@ -7,6 +7,7 @@ const app = fs.readFileSync(path.join(root, 'frontend/src/App.jsx'), 'utf8');
 const api = fs.readFileSync(path.join(root, 'frontend/src/api.js'), 'utf8');
 const packageLock = fs.readFileSync(path.join(root, 'frontend/package-lock.json'), 'utf8');
 const styles = fs.readFileSync(path.join(root, 'frontend/src/styles.css'), 'utf8');
+const challenges = fs.readFileSync(path.join(root, 'frontend/src/challenges.js'), 'utf8');
 
 const requiredViews = [
   'dashboard', 'profile', 'academics', 'portfolio', 'activities', 'recommendations',
@@ -63,7 +64,16 @@ for (const resource of ['researches', 'projects', 'internships', 'activities', '
 if (!app.includes('Assigned tasks & responses') || !app.includes('function TaskSubmissionModal(') || !app.includes('College list')) throw new Error('Counselor student workspace is incomplete.');
 if (!app.includes('Submission or Google Docs URL') || !app.includes('Google Docs URL')) throw new Error('Task/document Google Docs fields are missing.');
 if (!app.includes('function StudentRoadmapPath(') || !app.includes('75 XP') || !styles.includes('.level-roadmap-path')) throw new Error('Level-linked visual roadmap is missing.');
-if (!app.includes('function DashboardDiscoveryCards(') || !app.includes('VITE_PERSONALITY_QUIZ_URL') || !app.includes("setPage('college_search')") || !styles.includes('.dashboard-discovery-card')) throw new Error('Student dashboard discovery cards are missing.');
+if (!app.includes('function DashboardDiscoveryCards(') || !app.includes("setPage('find_personality')") || !app.includes("setPage('college_search')") || !styles.includes('.dashboard-discovery-card')) throw new Error('Student dashboard discovery cards are missing.');
+if (!app.includes('function ChallengeRunner(') || !app.includes('function ChallengeResult(') || !styles.includes('.challenge-scale')) throw new Error('Find Your Personality challenges are missing.');
+// One challenge per instrument, each with its own response scale: personality is
+// answered on agreement, interests on liking, values on importance.
+for (const scoring of ['bigfive', 'riasec', 'values', 'subjects', 'wil']) {
+  if (!challenges.includes(`"scoring": "${scoring}"`)) throw new Error(`The ${scoring} instrument is missing from challenges.js.`);
+  if (!challenges.includes(`challenge.scoring === '${scoring}'`)) throw new Error(`No scorer for ${scoring}.`);
+}
+if (!app.includes('challenge.scale.map(')) throw new Error('The runner must use each challenge\'s own response scale, not one shared scale.');
+if (app.includes('PERSONALITY_QUIZ_URL')) throw new Error('The personality challenges must run inside the platform, not link out.');
 if (!app.includes('MISSION {Math.min(completed + 1') || !app.includes("state === 'locked'") || !styles.includes('.roadmap-path-row.locked')) throw new Error('Ordered Level 1 prerequisite path is missing.');
 if (!app.includes("aria-pressed={post.liked_by_me}") || !app.includes('Each student counts once') || !styles.includes('.community-like-help')) throw new Error('Community like/unlike feedback is missing.');
 if (!app.includes('Meet with') || !app.includes('Pending approval') || !app.includes('Mark completed') || !styles.includes('.booking-actions')) throw new Error('Booking participant and approval UI is missing.');
