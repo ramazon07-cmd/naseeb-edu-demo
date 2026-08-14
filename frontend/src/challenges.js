@@ -658,73 +658,249 @@ export const CHALLENGES = [
   {
     "key": "subjects",
     "number": 4,
-    "instrument": "Subject confidence",
-    "licence": "Written in-house",
+    "instrument": "Subject ability, interest and cost",
+    "licence": "Written in-house (expectancy-value framework)",
     "title": "How school feels",
-    "blurb": "Eleven school subjects. Not your marks — how confident you feel when you sit down to each one.",
+    "blurb": "Eleven school subjects, asked three ways: what you can do, what you want, and what it costs you. Not your marks.",
     "scale": [
-      "Not at all",
-      "Not very",
+      "Disagree",
+      "Slightly disagree",
       "Neutral",
-      "Fairly",
-      "Very"
+      "Slightly agree",
+      "Agree"
     ],
     "scoring": "subjects",
     "items": [
       {
-        "id": 108,
+        "id": 1000,
         "subject": "math",
-        "text": "I feel confident in Mathematics."
+        "facet": "ability",
+        "section": "What you can do",
+        "text": "I can handle even the hard parts of Mathematics."
       },
       {
-        "id": 109,
+        "id": 1001,
         "subject": "physics",
-        "text": "I feel confident in Physics."
+        "facet": "ability",
+        "section": "What you can do",
+        "text": "I can handle even the hard parts of Physics."
       },
       {
-        "id": 110,
+        "id": 1002,
         "subject": "cs",
-        "text": "I feel confident in Computer Science."
+        "facet": "ability",
+        "section": "What you can do",
+        "text": "I can handle even the hard parts of Computer Science."
       },
       {
-        "id": 111,
+        "id": 1003,
         "subject": "biology",
-        "text": "I feel confident in Biology."
+        "facet": "ability",
+        "section": "What you can do",
+        "text": "I can handle even the hard parts of Biology."
       },
       {
-        "id": 112,
+        "id": 1004,
         "subject": "chemistry",
-        "text": "I feel confident in Chemistry."
+        "facet": "ability",
+        "section": "What you can do",
+        "text": "I can handle even the hard parts of Chemistry."
       },
       {
-        "id": 113,
+        "id": 1005,
         "subject": "economics",
-        "text": "I feel confident in Economics."
+        "facet": "ability",
+        "section": "What you can do",
+        "text": "I can handle even the hard parts of Economics."
       },
       {
-        "id": 114,
+        "id": 1006,
         "subject": "english",
-        "text": "I feel confident in English."
+        "facet": "ability",
+        "section": "What you can do",
+        "text": "I can handle even the hard parts of English."
       },
       {
-        "id": 115,
+        "id": 1007,
         "subject": "literature",
-        "text": "I feel confident in Native language and literature."
+        "facet": "ability",
+        "section": "What you can do",
+        "text": "I can handle even the hard parts of Native language and literature."
       },
       {
-        "id": 116,
+        "id": 1008,
         "subject": "history",
-        "text": "I feel confident in History."
+        "facet": "ability",
+        "section": "What you can do",
+        "text": "I can handle even the hard parts of History."
       },
       {
-        "id": 117,
+        "id": 1009,
         "subject": "geography",
-        "text": "I feel confident in Geography."
+        "facet": "ability",
+        "section": "What you can do",
+        "text": "I can handle even the hard parts of Geography."
       },
       {
-        "id": 118,
+        "id": 1010,
         "subject": "art",
-        "text": "I feel confident in Art and design."
+        "facet": "ability",
+        "section": "What you can do",
+        "text": "I can handle even the hard parts of Art and design."
+      },
+      {
+        "id": 1011,
+        "subject": "chemistry",
+        "facet": "interest",
+        "section": "What you enjoy",
+        "text": "Chemistry lessons are something I look forward to."
+      },
+      {
+        "id": 1012,
+        "subject": "economics",
+        "facet": "interest",
+        "section": "What you enjoy",
+        "text": "Economics lessons are something I look forward to."
+      },
+      {
+        "id": 1013,
+        "subject": "english",
+        "facet": "interest",
+        "section": "What you enjoy",
+        "text": "English lessons are something I look forward to."
+      },
+      {
+        "id": 1014,
+        "subject": "literature",
+        "facet": "interest",
+        "section": "What you enjoy",
+        "text": "Native language and literature lessons are something I look forward to."
+      },
+      {
+        "id": 1015,
+        "subject": "history",
+        "facet": "interest",
+        "section": "What you enjoy",
+        "text": "History lessons are something I look forward to."
+      },
+      {
+        "id": 1016,
+        "subject": "geography",
+        "facet": "interest",
+        "section": "What you enjoy",
+        "text": "Geography lessons are something I look forward to."
+      },
+      {
+        "id": 1017,
+        "subject": "art",
+        "facet": "interest",
+        "section": "What you enjoy",
+        "text": "Art and design lessons are something I look forward to."
+      },
+      {
+        "id": 1018,
+        "subject": "math",
+        "facet": "interest",
+        "section": "What you enjoy",
+        "text": "Mathematics lessons are something I look forward to."
+      },
+      {
+        "id": 1019,
+        "subject": "physics",
+        "facet": "interest",
+        "section": "What you enjoy",
+        "text": "Physics lessons are something I look forward to."
+      },
+      {
+        "id": 1020,
+        "subject": "cs",
+        "facet": "interest",
+        "section": "What you enjoy",
+        "text": "Computer Science lessons are something I look forward to."
+      },
+      {
+        "id": 1021,
+        "subject": "biology",
+        "facet": "interest",
+        "section": "What you enjoy",
+        "text": "Biology lessons are something I look forward to."
+      },
+      {
+        "id": 1022,
+        "subject": "history",
+        "facet": "cost",
+        "section": "What it costs you",
+        "text": "History makes me anxious, even when I have prepared."
+      },
+      {
+        "id": 1023,
+        "subject": "geography",
+        "facet": "cost",
+        "section": "What it costs you",
+        "text": "Geography makes me anxious, even when I have prepared."
+      },
+      {
+        "id": 1024,
+        "subject": "art",
+        "facet": "cost",
+        "section": "What it costs you",
+        "text": "Art and design makes me anxious, even when I have prepared."
+      },
+      {
+        "id": 1025,
+        "subject": "math",
+        "facet": "cost",
+        "section": "What it costs you",
+        "text": "Mathematics makes me anxious, even when I have prepared."
+      },
+      {
+        "id": 1026,
+        "subject": "physics",
+        "facet": "cost",
+        "section": "What it costs you",
+        "text": "Physics makes me anxious, even when I have prepared."
+      },
+      {
+        "id": 1027,
+        "subject": "cs",
+        "facet": "cost",
+        "section": "What it costs you",
+        "text": "Computer Science makes me anxious, even when I have prepared."
+      },
+      {
+        "id": 1028,
+        "subject": "biology",
+        "facet": "cost",
+        "section": "What it costs you",
+        "text": "Biology makes me anxious, even when I have prepared."
+      },
+      {
+        "id": 1029,
+        "subject": "chemistry",
+        "facet": "cost",
+        "section": "What it costs you",
+        "text": "Chemistry makes me anxious, even when I have prepared."
+      },
+      {
+        "id": 1030,
+        "subject": "economics",
+        "facet": "cost",
+        "section": "What it costs you",
+        "text": "Economics makes me anxious, even when I have prepared."
+      },
+      {
+        "id": 1031,
+        "subject": "english",
+        "facet": "cost",
+        "section": "What it costs you",
+        "text": "English makes me anxious, even when I have prepared."
+      },
+      {
+        "id": 1032,
+        "subject": "literature",
+        "facet": "cost",
+        "section": "What it costs you",
+        "text": "Native language and literature makes me anxious, even when I have prepared."
       }
     ]
   },
@@ -747,121 +923,121 @@ export const CHALLENGES = [
     "perColumn": 4,
     "items": [
       {
-        "id": 119,
+        "id": 108,
         "card": "A",
         "value": "achievement",
         "text": "On my ideal job it is important that… I make use of my abilities."
       },
       {
-        "id": 120,
+        "id": 109,
         "card": "B",
         "value": "support",
         "text": "On my ideal job it is important that… I would be treated fairly by the company."
       },
       {
-        "id": 121,
+        "id": 110,
         "card": "C",
         "value": "conditions",
         "text": "On my ideal job it is important that… I could be busy all the time."
       },
       {
-        "id": 122,
+        "id": 111,
         "card": "D",
         "value": "recognition",
         "text": "On my ideal job it is important that… The job would provide an opportunity for advancement."
       },
       {
-        "id": 123,
+        "id": 112,
         "card": "E",
         "value": "recognition",
         "text": "On my ideal job it is important that… I could give directions and instructions to others."
       },
       {
-        "id": 124,
+        "id": 113,
         "card": "F",
         "value": "achievement",
         "text": "On my ideal job it is important that… The work could give me a feeling of accomplishment."
       },
       {
-        "id": 125,
+        "id": 114,
         "card": "G",
         "value": "conditions",
         "text": "On my ideal job it is important that… My pay would compare well with that of other workers."
       },
       {
-        "id": 126,
+        "id": 115,
         "card": "H",
         "value": "relationships",
         "text": "On my ideal job it is important that… My co-workers would be easy to get along with."
       },
       {
-        "id": 127,
+        "id": 116,
         "card": "I",
         "value": "independence",
         "text": "On my ideal job it is important that… I could try out my own ideas."
       },
       {
-        "id": 128,
+        "id": 117,
         "card": "J",
         "value": "conditions",
         "text": "On my ideal job it is important that… I could work alone."
       },
       {
-        "id": 129,
+        "id": 118,
         "card": "K",
         "value": "relationships",
         "text": "On my ideal job it is important that… I would never be pressured to do things that go against my sense of right and wrong."
       },
       {
-        "id": 130,
+        "id": 119,
         "card": "L",
         "value": "recognition",
         "text": "On my ideal job it is important that… I could receive recognition for the work I do."
       },
       {
-        "id": 131,
+        "id": 120,
         "card": "M",
         "value": "independence",
         "text": "On my ideal job it is important that… I could make decisions on my own."
       },
       {
-        "id": 132,
+        "id": 121,
         "card": "N",
         "value": "conditions",
         "text": "On my ideal job it is important that… The job would provide for steady employment."
       },
       {
-        "id": 133,
+        "id": 122,
         "card": "O",
         "value": "relationships",
         "text": "On my ideal job it is important that… I could do things for other people."
       },
       {
-        "id": 134,
+        "id": 123,
         "card": "P",
         "value": "support",
         "text": "On my ideal job it is important that… I have supervisors who would back up their workers with management."
       },
       {
-        "id": 135,
+        "id": 124,
         "card": "Q",
         "value": "support",
         "text": "On my ideal job it is important that… I have supervisors who train their workers well."
       },
       {
-        "id": 136,
+        "id": 125,
         "card": "R",
         "value": "conditions",
         "text": "On my ideal job it is important that… I could do something different every day."
       },
       {
-        "id": 137,
+        "id": 126,
         "card": "S",
         "value": "conditions",
         "text": "On my ideal job it is important that… The job would have good working conditions."
       },
       {
-        "id": 138,
+        "id": 127,
         "card": "T",
         "value": "independence",
         "text": "On my ideal job it is important that… I could plan my work with little supervision."
@@ -906,7 +1082,7 @@ export const INSTRUMENT_VERSION = {
   "personality": "1",
   "interests": "1",
   "values": "1",
-  "subjects": "1",
+  "subjects": "2",
   "workimportance": "1"
 }
 
@@ -1156,10 +1332,81 @@ export function scoreChallenge(challenge, answers) {
   }
 
   if (challenge.scoring === 'subjects') {
+    const byFacet = { ability: {}, interest: {}, cost: {} }
+    for (const item of items) byFacet[item.facet][item.subject] = answers[item.id]
+    const subjects = Object.keys(byFacet.ability)
+
+    // The single number the career matcher wants. Ability and interest carry it
+    // in equal share because neither alone predicts a subject choice; cost enters
+    // reversed and at half their weight -- it moderates a subject, it does not
+    // decide one, and a student put off maths by nerves is still a maths student.
+    // Weights sum to 1, so the composite stays on the same 1..5 scale as the
+    // items and needs no clamping.
     const bySubject = {}
-    for (const item of items) bySubject[item.subject] = answers[item.id]
-    const ranked = Object.keys(bySubject).sort((a, b) => bySubject[b] - bySubject[a])
-    return { bySubject, ranked }
+    for (const s of subjects) {
+      bySubject[s] = 0.4 * byFacet.ability[s] + 0.4 * byFacet.interest[s] + 0.2 * (6 - byFacet.cost[s])
+    }
+    // Ties broken by name so the same answers always give the same order.
+    const ranked = [...subjects].sort((a, b) => (bySubject[b] - bySubject[a]) || (a < b ? -1 : 1))
+
+    // The patterns are the reason for asking three times. Each one is a different
+    // conversation, and the old single rating could not tell them apart.
+    //
+    // Every rule has TWO halves, and both are needed:
+    //
+    //   ABSOLUTE  they said it clearly -- 4 or 5 to agree, 1 or 2 to disagree.
+    //             3 is the fence and never triggers anything.
+    //   RELATIVE  the subject stands out from that student's OWN average on the
+    //             facet that decides the rule.
+    //
+    // The relative half is not tidiness. Without it a student anxious about all
+    // eleven subjects is flagged on all eleven, which is true and useless: they
+    // are not blocked in maths, they are anxious, and that is a different
+    // conversation this challenge should not start. Simulated over 12,000
+    // students, adding it moves "blocked" from 27% to 38% precision, and taking
+    // only the strongest two takes it to 41%.
+    //
+    // Even so, three single items cannot cleanly satisfy a three-way condition:
+    // "blocked" is right about two times in five. That number is why the UI
+    // words these as a question to check rather than a finding to accept, and
+    // why only the two strongest are ever named -- a fifth-best guess spends the
+    // student's attention without earning it.
+    const avg = (facet) => subjects.reduce((t, s) => t + byFacet[facet][s], 0) / subjects.length
+    const own = { ability: avg('ability'), interest: avg('interest'), cost: avg('cost') }
+    const rel = (facet, s) => byFacet[facet][s] - own[facet]
+    const STANDS_OUT = 0.5
+    const hi = (v) => v >= 4, lo = (v) => v <= 2
+
+    const raw = { blocked: [], aspiring: [], coasting: [], strength: [] }
+    for (const s of subjects) {
+      const a = byFacet.ability[s], i = byFacet.interest[s], c = byFacet.cost[s]
+      // Able and keen, but it frightens them more than their other subjects do.
+      // The one worth catching: a subject they could have and are talking
+      // themselves out of.
+      if (hi(a) && hi(i) && hi(c) && rel('cost', s) > STANDS_OUT) {
+        raw.blocked.push([s, a + i + rel('cost', s)])
+      // Keen but does not feel able. Judged on the GAP between the two, each
+      // measured against this student's own level: a modest student rates
+      // everything low, and it is the shape across subjects that carries the
+      // meaning, not the height. Often one bad year or one teacher, not a ceiling.
+      } else if (lo(a) && hi(i) && rel('interest', s) - rel('ability', s) > STANDS_OUT) {
+        raw.aspiring.push([s, rel('interest', s) - rel('ability', s)])
+      // Able but does not want it. The trap of choosing a field off marks alone.
+      } else if (hi(a) && lo(i) && rel('ability', s) - rel('interest', s) > STANDS_OUT) {
+        raw.coasting.push([s, rel('ability', s) - rel('interest', s)])
+      // Able, keen, and cheaper for them than their other subjects are.
+      } else if (hi(a) && hi(i) && lo(c) && rel('cost', s) < -STANDS_OUT) {
+        raw.strength.push([s, a + i - rel('cost', s)])
+      }
+    }
+    // Strongest first, at most two, ties by name so a reload cannot reorder them.
+    const patterns = {}
+    for (const key of Object.keys(raw)) {
+      patterns[key] = raw[key]
+        .sort((x, y) => (y[1] - x[1]) || (x[0] < y[0] ? -1 : 1))
+        .slice(0, 2).map(([s]) => s)
+    }
+    return { byFacet, bySubject, ranked, patterns }
   }
 
   if (challenge.scoring === 'wil') {

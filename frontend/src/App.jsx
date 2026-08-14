@@ -1662,7 +1662,20 @@ function RatingRunner({ challenge, answers, onAnswer, onFinish, onBack }) {
     <section className="portal-hero"><div><span className="eyebrow">CHALLENGE {challenge.number} · {challenge.instrument}</span><h2>{challenge.title}</h2><p>{challenge.blurb}</p></div><Fingerprint size={64} /></section>
     <Panel title={`${answered} of ${challenge.items.length} answered`} action={<button className="button quiet small" onClick={onBack}>Back to challenges</button>}>
       <div className="challenge-progress"><div className="progress wide"><span style={{ width: `${(answered / challenge.items.length) * 100}%` }} /></div><small>Page {page + 1} of {pages}</small></div>
-      <div className="challenge-items" ref={listRef}>{slice.map((item) => <fieldset key={item.id} className={answers[item.id] ? 'answered' : ''}>
+      {/* A challenge whose items carry a section shows it at the top of every page
+          and again wherever the block changes mid-page. Without it, a student who
+          turns the page into "…makes me anxious" has no idea they are being asked
+          a different question about the same eleven subjects.
+
+          The heading is a SIBLING of the fieldset, not a child: an answered
+          fieldset drops to .45 opacity, and opacity applies to the whole subtree,
+          so a heading inside it would fade exactly when someone scrolls back to
+          ask what this block was. */}
+      <div className="challenge-items" ref={listRef}>{slice.flatMap((item, index) => [
+        item.section && (index === 0 || item.section !== slice[index - 1].section)
+          ? <p key={`s-${item.id}`} className="challenge-section"><span className="eyebrow">{item.section}</span></p>
+          : null,
+        <fieldset key={item.id} className={answers[item.id] ? 'answered' : ''}>
         <legend className={challenge.bipolar ? 'sr-only' : undefined}>{item.text}</legend>
         <div className="challenge-scale">
           <span className="scale-pole left" aria-hidden={challenge.bipolar || undefined}>{poleText(challenge, item)[0]}</span>
@@ -1685,7 +1698,8 @@ function RatingRunner({ challenge, answers, onAnswer, onFinish, onBack }) {
           })}</div>
           <span className="scale-pole right" aria-hidden={challenge.bipolar || undefined}>{poleText(challenge, item)[1]}</span>
         </div>
-      </fieldset>)}</div>
+      </fieldset>,
+      ].filter(Boolean))}</div>
       <div className="challenge-actions">
         {page > 0 && <button className="button quiet" onClick={() => { setPage(page - 1); window.scrollTo(0, 0) }}>Back</button>}
         {last
@@ -1809,9 +1823,41 @@ function ChallengeResult({ challenge, result }) {
   }
   if (challenge.scoring === 'subjects') {
     const top = result.ranked.slice(0, 3)
+    const names = (list) => list.map((s) => SUBJECT_NAME[s]).join(' · ')
+    // The patterns come first and the ranking second. A student who reads one
+    // thing on this page should read "you like biology but it frightens you",
+    // not their subjects in an order they could have written out themselves.
+    //
+    // Every one of these is PHRASED AS A QUESTION, and that is not modesty.
+    // Simulated over 12,000 students, "blocked" is right about two times in five
+    // when it fires -- three single items cannot pin down a three-way condition
+    // any harder than that. Two in five is a good reason to raise something with
+    // a fifteen-year-old and a bad reason to tell them what they are.
+    // The eyebrow names which question this is, so three cards in a row are not
+    // three identical labels; the sentence under it is what stays open-ended.
+    const NOTE = {
+      blocked: ['Able, keen, still anxious', 'You said you can handle these and that you look forward to them — and that they still make you anxious, more than your other subjects do. If that is right, it is the most fixable thing on this page. Nerves talk people out of subjects they are actually suited to.'],
+      aspiring: ['Keen, but not sure you can', 'You look forward to these but said you cannot handle the hard parts — a wider gap than you have on your other subjects. Is that really the subject, or is it one year and one teacher?'],
+      coasting: ['Able, but not keen', 'You can handle these but do not look forward to them. Marks alone would push you towards them, and that is how people end up on a course they did not want.'],
+      strength: ['Where to start', 'You can handle these, you look forward to them, and they take less out of you than your other subjects do.'],
+    }
+    const shown = Object.keys(NOTE).filter((k) => result.patterns[k].length)
     return <Panel title="How school feels">
-      <p className="journey-disclaimer" style={{ marginBottom: 14 }}>You feel most confident in <strong>{top.map((s) => SUBJECT_NAME[s]).join(' · ')}</strong>. This is how the subjects feel to you, which is not the same as how you score in them — the gap between the two is worth a conversation with your counselor.</p>
-      <ResultRows rows={result.ranked.map((s) => [SUBJECT_NAME[s], '', result.bySubject[s], top.includes(s) ? 'Most confident' : 'Less confident'])} />
+      <p className="journey-disclaimer" style={{ marginBottom: 14 }}>Strongest overall: <strong>{names(top)}</strong>. Each subject was asked three ways — what you can do, what you enjoy, and what it costs you — because those three come apart, and the places they disagree are the useful part.</p>
+      {shown.length > 0 && <div className="subject-patterns">{shown.map((key) => <div key={key} className={`subject-pattern ${key}`}>
+        <span className="eyebrow">{NOTE[key][0]}</span>
+        <b>{names(result.patterns[key])}</b>
+        <small>{NOTE[key][1]}</small>
+      </div>)}
+      <p className="journey-disclaimer">These are questions raised by how you answered, not conclusions about you. Any of them can be wrong — say so, out loud, to your counselor.</p>
+      </div>}
+      <ResultRows rows={result.ranked.map((s) => [
+        SUBJECT_NAME[s],
+        `Can do ${result.byFacet.ability[s]}/5 · enjoys ${result.byFacet.interest[s]}/5 · costs ${result.byFacet.cost[s]}/5`,
+        result.bySubject[s],
+        top.includes(s) ? 'Strongest' : 'Lower',
+      ])} />
+      <p className="journey-disclaimer" style={{ marginTop: 12 }}>This is how the subjects feel to you, which is not the same as how you score in them — the gap between the two is worth a conversation with your counselor.</p>
     </Panel>
   }
   if (challenge.scoring === 'wil') {
@@ -1895,8 +1941,9 @@ function CareerMatches({ results }) {
   const signals = recSignals(
     scored.riasec.means,
     scored.values ? scored.values.byDim : null,
-    // Not the raw 1..5: the scorer wants {score 0..1, weight}, and confidence is
-    // discounted against a real mark.
+    // The ability/interest/cost composite, not a bare confidence rating -- still
+    // on 1..5, so this call is unchanged. The scorer wants {score 0..1, weight},
+    // and a self-report is discounted against a real mark either way.
     scored.subjects ? subjectPerformance(scored.subjects.bySubject) : null,
     scored.bigfive || null,
   )

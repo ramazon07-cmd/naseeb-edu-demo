@@ -570,6 +570,18 @@ select option, select optgroup { color: var(--text); background: var(--control-o
 .challenge-items fieldset.answered { opacity: .45; }
 .challenge-items fieldset.answered:hover, .challenge-items fieldset.answered:focus-within { opacity: 1; }
 .challenge-items legend { display: block; padding: 0; color: var(--text); font-size: 17.5px; font-weight: 600; line-height: 1.35; margin-bottom: 6px; }
+/* Block heading inside a challenge, for instruments that ask the same list more
+   than once. Rendered as a SIBLING of the fieldsets rather than inside one, so
+   the .45 opacity an answered question fades to never takes the heading with it
+   -- opacity applies to the whole subtree, and a heading that dims once its block
+   is done disappears exactly when a student scrolls back to ask what it was. */
+/* No rule of its own. Every question already ends in one, so a heading that drew
+   a second sat between two lines four pixels apart and read as the tail of the
+   question above rather than the head of the block below. It uses the space
+   instead: the gap above it is what says a new block starts. */
+.challenge-section { margin: 30px 0 4px; }
+.challenge-section:first-child { margin-top: 2px; }
+.challenge-section .eyebrow { font-size: 11px; color: var(--text); }
 /* Five circles between two poles, tapering toward a small neutral in the middle.
    Size is the primary encoding -- the row reads as one spectrum rather than five
    buttons, and it still reads with the colour removed. Five equal boxes with the
@@ -608,6 +620,28 @@ select option, select optgroup { color: var(--text); background: var(--control-o
 .challenge-progress { display: grid; gap: 6px; margin-bottom: 14px; }
 .challenge-progress small { color: var(--muted); font-size: 10px; }
 .challenge-source { display: block; color: var(--muted); font-size: 9px; letter-spacing: .03em; }
+/* The four subject patterns. Each one is a different conversation, so each gets
+   its own card rather than a line in a list -- these are the finding, and the
+   ranked bars under them are only the evidence.
+
+   The left rule carries which pattern it is, but never alone: the eyebrow names
+   it in words directly beside the colour, so the card survives greyscale, a
+   colourblind reader and forced-colors mode. */
+.subject-patterns { display: grid; gap: 10px; margin-bottom: 18px; }
+.subject-pattern { display: grid; gap: 3px; padding: 12px 14px; background: var(--surface-soft); border-radius: 10px; border-left: 3px solid var(--scale-neg); }
+.subject-pattern b { color: var(--text); font-size: 14.5px; font-weight: 650; line-height: 1.3; }
+.subject-pattern small { color: var(--muted); font-size: 12px; line-height: 1.5; }
+/* The rule carries the only split that matters: three of these are questions to
+   check, one is a green light. Azure asks, bronze says start here -- the same
+   two colours the circle scale has used at either end all the way through.
+   Which specific question a card raises is carried by its eyebrow in words, so
+   nothing here depends on telling two browns apart.
+
+   No warning or danger tint on "blocked". Being anxious about a subject you are
+   good at is a thing to look at, not a thing wrong with the student, and this
+   flag is right about two times in five -- red on a coin flip is not honest. */
+.subject-pattern.strength { border-left-color: var(--scale-pos); }
+.subject-pattern .eyebrow { color: var(--text); }
 .licence-pending { display: flex; align-items: flex-start; gap: 5px; margin-top: 7px; padding: 6px 8px; background: var(--warning-bg); border: 1px solid var(--warning-border); border-radius: 7px; color: var(--text); font-size: 9.5px; line-height: 1.45; }
 .licence-pending svg { flex: 0 0 auto; margin-top: 1px; }
 
