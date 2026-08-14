@@ -1,6 +1,6 @@
 ﻿import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
-  Activity, Award, Bell, BookOpen, Building2, CheckCircle2,
+  Activity, AlertTriangle, Award, Bell, BookOpen, Building2, CheckCircle2,
   CalendarClock, CalendarDays, Check, ChevronRight, ClipboardCheck, Clock3, Compass,
   ContactRound, DollarSign, ExternalLink, Eye, FileText, Filter, Fingerprint, Flag, FolderKanban, Globe2, GraduationCap, Heart, LayoutDashboard,
   LibraryBig, ListChecks, LogOut, MapPin, Menu, MessageCircle, MessageSquareText, Moon,
@@ -12,6 +12,8 @@ import {
   CHALLENGES, PLANNED, RIASEC_LEAD, RIASEC_NAME, RIASEC_ORDER,
   INSTRUMENT_VERSION, SUBJECT_NAME, TRAIT_BLURB, TRAIT_LABEL, TRAIT_ORDER, VALUE_NAME, WIL_LEAD, WIL_NAME, WIL_ORDER, scoreChallenge,
 } from './challenges'
+import { TYPE_AXES, typeCodeOf } from './typecode'
+import { archetypeNameOf } from './archetype'
 import {
   CAREER_ENTRIES, CAREER_FAMILIES, MAJOR_ENTRIES, NAMES,
   recDrivers, recRank, recRankFamilies, recSignals, subjectPerformance,
@@ -88,7 +90,7 @@ const PAGE_META = {
   essays: { label: 'Essays', icon: GraduationCap, description: 'Essay drafts and revision history' },
   notifications: { label: 'Notifications', icon: Bell, description: 'Deadline and document alerts' },
   student_center: { label: 'Student Center', icon: UsersRound, description: 'Academic profile, portfolio, activities, and documents' },
-  find_personality: { label: 'Find Your Personality', icon: Fingerprint, description: 'Eight challenges that unlock your personality profile' },
+  find_personality: { label: 'Find Your Personality', icon: Fingerprint, description: `${CHALLENGES.length + PLANNED.length} challenges that unlock your personality profile` },
   roadmap: { label: 'Roadmap', icon: Compass, description: 'Level-linked missions, milestones, and reflections' },
   community: { label: 'Community', icon: Users, description: 'Student discussions, questions, and shared experience' },
   bookings: { label: 'Meetings', icon: CalendarClock, description: 'Schedule and manage meetings' },
@@ -1552,23 +1554,45 @@ function SortRunner({ challenge, answers, onAnswer, onFinish, onBack }) {
       <div className="sort-tally">{challenge.scale.map((label, index) => <div key={label} className={perColumn[index] === challenge.perColumn ? 'full' : ''}>
         <b>{perColumn[index]}/{challenge.perColumn}</b><span>{label}</span>
       </div>)}</div>
-      <div className="challenge-items">{challenge.items.map((item, index) => <fieldset key={item.id} className={answers[item.id] ? 'answered' : ''}>
-        <legend><span>{index + 1}</span>{item.text}</legend>
-        <div className="challenge-scale">{challenge.scale.map((label, position) => {
-          const level = position + 1
-          const chosen = answers[item.id] === level
-          const full = perColumn[position] >= challenge.perColumn && !chosen
-          return <label key={label} className={full ? 'full' : ''}>
-            <input type="radio" name={`item-${item.id}`} checked={chosen} disabled={full} onChange={() => onAnswer(item.id, level)} />
-            <span>{label}</span>
-          </label>
-        })}</div>
+      <div className="challenge-items">{challenge.items.map((item) => <fieldset key={item.id} className={answers[item.id] ? 'answered' : ''}>
+        <legend>{item.text}</legend>
+        <div className="challenge-scale">
+          <span className="scale-pole left">{challenge.scale[0]}</span>
+          <div className="scale-dots">{challenge.scale.map((label, position) => {
+            const level = position + 1
+            const chosen = answers[item.id] === level
+            const full = perColumn[position] >= challenge.perColumn && !chosen
+            return <label key={label} className={`scale-opt s${level}${chosen ? ' sel' : ''}${full ? ' full' : ''}`} title={full ? `${label} is already full` : label}>
+              <input type="radio" name={`item-${item.id}`} checked={chosen} disabled={full} aria-label={label} onChange={() => onAnswer(item.id, level)} />
+              <span className="scale-dot" aria-hidden="true" />
+            </label>
+          })}</div>
+          <span className="scale-pole right">{challenge.scale[challenge.scale.length - 1]}</span>
+        </div>
       </fieldset>)}</div>
       <div className="challenge-actions">
         <button className="button primary" disabled={!legal} onClick={onFinish}>{legal ? 'Finish challenge' : `Put exactly ${challenge.perColumn} in every level`}<ChevronRight size={17} /></button>
       </div>
     </Panel>
   </div>
+}
+
+// On a bipolar challenge every item carries its own two ends, so the poles come
+// from the item rather than from one scale shared by the whole bank.
+const poleText = (challenge, item) => challenge.bipolar
+  ? item.poles
+  : [challenge.scale[0], challenge.scale[challenge.scale.length - 1]]
+
+// What a screen reader hears on each circle. A bipolar item has no wording of
+// its own for the middle three, so they are described by which end they lean
+// toward -- "3 of 5" alone would be a number with nothing attached to it.
+function optionLabel(challenge, item, position) {
+  if (!challenge.bipolar) return challenge.scale[position]
+  const [left, right] = item.poles
+  if (position === 0) return left
+  if (position === 4) return right
+  if (position === 2) return 'In between'
+  return position === 1 ? `Closer to “${left}”` : `Closer to “${right}”`
 }
 
 function ChallengeRunner({ challenge, answers, onAnswer, onFinish, onBack }) {
@@ -1584,17 +1608,83 @@ function RatingRunner({ challenge, answers, onAnswer, onFinish, onBack }) {
   const pageDone = slice.every((item) => answers[item.id])
   const last = page === pages - 1
   const complete = answered === challenge.items.length
+  const listRef = useRef(null)
+
+  // Auto-advance, copied rule for rule from TestMind.
+  //
+  //  - POINTER ONLY. Chrome fires a synthetic click for arrow-key selection, and
+  //    those report detail 0. Advancing on an arrow press would carry the student
+  //    past the option they were still travelling towards.
+  //  - ONLY FROM THE CURRENT QUESTION. Going back to change an earlier answer
+  //    must not fling the page forward; that is the student re-reading, not
+  //    progressing.
+  //  - THE NEXT ROW LANDS WHERE THE LAST ONE WAS. Every row has identical
+  //    geometry, so matching the row of circles means the pointer is already on
+  //    the next question and never has to travel.
+  const advanceFrom = useCallback((itemId) => {
+    const list = listRef.current
+    if (!list) return
+    const sets = Array.from(list.querySelectorAll('fieldset'))
+    const fromIndex = sets.findIndex((f) => f.querySelector(`input[name="item-${itemId}"]`))
+    if (fromIndex < 0) return
+    // Only the question they were on. Anything earlier still unanswered means
+    // they skipped back, and we leave the scroll where they put it.
+    if (sets.slice(0, fromIndex).some((f) => !f.querySelector('input:checked'))) return
+    const anchorRow = sets[fromIndex].querySelector('.scale-dots')
+    const anchor = anchorRow ? anchorRow.getBoundingClientRect() : null
+    const anchorMid = anchor ? anchor.top + anchor.height / 2 : null
+
+    // After the re-render, so "unanswered" reflects the answer just given.
+    requestAnimationFrame(() => {
+      const fresh = Array.from(list.querySelectorAll('fieldset'))
+      const next = fresh.slice(fromIndex + 1).find((f) => !f.querySelector('input:checked'))
+      const smooth = !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+      const behavior = smooth ? 'smooth' : 'auto'
+      if (!next) {
+        // Page finished. Bring the button that continues into view rather than
+        // leaving them at the bottom of a page with nothing obvious to do.
+        list.parentElement?.querySelector('.challenge-actions')
+          ?.scrollIntoView({ behavior, block: 'center' })
+        return
+      }
+      next.querySelector('input[type=radio]')?.focus({ preventScroll: true })
+      const nextRow = next.querySelector('.scale-dots')
+      if (anchorMid !== null && nextRow) {
+        const r = nextRow.getBoundingClientRect()
+        window.scrollBy({ top: (r.top + r.height / 2) - anchorMid, behavior })
+      } else {
+        next.scrollIntoView({ behavior, block: 'center' })
+      }
+    })
+  }, [])
 
   return <div className="section-stack student-portal">
     <section className="portal-hero"><div><span className="eyebrow">CHALLENGE {challenge.number} · {challenge.instrument}</span><h2>{challenge.title}</h2><p>{challenge.blurb}</p></div><Fingerprint size={64} /></section>
     <Panel title={`${answered} of ${challenge.items.length} answered`} action={<button className="button quiet small" onClick={onBack}>Back to challenges</button>}>
       <div className="challenge-progress"><div className="progress wide"><span style={{ width: `${(answered / challenge.items.length) * 100}%` }} /></div><small>Page {page + 1} of {pages}</small></div>
-      <div className="challenge-items">{slice.map((item, index) => <fieldset key={item.id} className={answers[item.id] ? 'answered' : ''}>
-        <legend><span>{page * FP_PAGE_SIZE + index + 1}</span>{item.text}</legend>
-        <div className="challenge-scale">{challenge.scale.map((scaleLabel, position) => <label key={scaleLabel}>
-          <input type="radio" name={`item-${item.id}`} checked={answers[item.id] === position + 1} onChange={() => onAnswer(item.id, position + 1)} />
-          <span>{scaleLabel}</span>
-        </label>)}</div>
+      <div className="challenge-items" ref={listRef}>{slice.map((item) => <fieldset key={item.id} className={answers[item.id] ? 'answered' : ''}>
+        <legend className={challenge.bipolar ? 'sr-only' : undefined}>{item.text}</legend>
+        <div className="challenge-scale">
+          <span className="scale-pole left" aria-hidden={challenge.bipolar || undefined}>{poleText(challenge, item)[0]}</span>
+          <div className="scale-dots">{challenge.scale.map((scaleLabel, position) => {
+            const chosen = answers[item.id] === position + 1
+            const label = optionLabel(challenge, item, position)
+            return <label key={scaleLabel} className={`scale-opt s${position + 1}${chosen ? ' sel' : ''}`} title={label}>
+              <input
+                type="radio"
+                name={`item-${item.id}`}
+                checked={chosen}
+                aria-label={label}
+                onChange={() => onAnswer(item.id, position + 1)}
+                // detail is 0 for a keyboard-generated click, so this fires only
+                // on a real tap. onChange above still records arrow-key answers.
+                onClick={(event) => { if (event.detail > 0) advanceFrom(item.id) }}
+              />
+              <span className="scale-dot" aria-hidden="true" />
+            </label>
+          })}</div>
+          <span className="scale-pole right" aria-hidden={challenge.bipolar || undefined}>{poleText(challenge, item)[1]}</span>
+        </div>
       </fieldset>)}</div>
       <div className="challenge-actions">
         {page > 0 && <button className="button quiet" onClick={() => { setPage(page - 1); window.scrollTo(0, 0) }}>Back</button>}
@@ -1690,13 +1780,16 @@ function ResultRows({ rows }) {
 
 function ChallengeResult({ challenge, result }) {
   if (challenge.scoring === 'bigfive') {
-    return <Panel title="Your personality">
-      {/* No polygon here on purpose. The five traits have no fixed order, so the
-          silhouette changes with the axis order while the answers stay the same
-          -- a shape that looks like evidence and is not. Bars carry it honestly. */}
-      <ResultRows rows={TRAIT_ORDER.map((t) => [TRAIT_LABEL[t], TRAIT_BLURB[t], result[t], band(result[t])])} />
-      <p className="journey-disclaimer">This describes how you answered today, not what you are capable of. There is no better or worse direction on any of the five. Bring it to your counselor — it is a conversation starter, not a verdict.</p>
-    </Panel>
+    return <>
+      <TypeResult scores={result} />
+      <Panel title="Your personality">
+        {/* No polygon here on purpose. The five traits have no fixed order, so the
+            silhouette changes with the axis order while the answers stay the same
+            -- a shape that looks like evidence and is not. Bars carry it honestly. */}
+        <ResultRows rows={TRAIT_ORDER.map((t) => [TRAIT_LABEL[t], TRAIT_BLURB[t], result[t], band(result[t])])} />
+        <p className="journey-disclaimer">This describes how you answered today, not what you are capable of. There is no better or worse direction on any of the five. Bring it to your counselor — it is a conversation starter, not a verdict.</p>
+      </Panel>
+    </>
   }
   if (challenge.scoring === 'riasec') {
     const top = result.code.map((s) => RIASEC_NAME[s]).join(' · ')
@@ -1737,6 +1830,55 @@ function ChallengeResult({ challenge, result }) {
     </Panel>
   }
   return null
+}
+
+// The headline result: the four-letter code and how firmly each letter was
+// earned. Derived from challenge 1's fifty answers -- it asks which side of the
+// middle each trait sits on, so it is a reading of that result and not a second
+// test.
+//
+// The NAME is here; the historical figure is not. The figures are what make
+// TestMind feel made-for-you and they stay there -- this side gets the code and
+// a plain-language label for it.
+//
+// The part every other type site leaves out is the margin. A trait a hair from
+// the midpoint produced a letter that would flip if the student had answered
+// one item differently, and printing all five in the same confident type hides
+// that completely.
+function TypeResult({ scores }) {
+  const type = typeCodeOf(scores)
+  const name = archetypeNameOf(scores)
+
+  return <Panel title="Your type" action={<Badge>{type.code}</Badge>}>
+    <p className="type-code" aria-label={`Your type is ${type.code.replace('-', ', ').split('').join(' ')}`}>
+      {TYPE_AXES.map((axis) => <span key={axis.trait} className={type.borderline.includes(axis.trait) ? 'soft' : undefined}>
+        {axis.trait === 'ES' ? <small>-{type.letters.ES}</small> : type.letters[axis.trait]}
+      </span>)}
+    </p>
+    <p className="type-name">{name}</p>
+
+    <div className="type-axes">{TYPE_AXES.map((axis) => {
+      // Trait means run 1..5, so the midpoint is the middle of the track and a
+      // marker's distance from centre IS how settled that letter is.
+      const value = scores[axis.trait]
+      const pct = ((value - 1) / 4) * 100
+      const chosen = type.letters[axis.trait]
+      return <div key={axis.trait} className="type-axis">
+        <header><b>{axis.name}</b>{type.borderline.includes(axis.trait) && <small>could go either way</small>}</header>
+        <div className="type-track" role="img" aria-label={`${axis.name}: ${axis.lowName} to ${axis.highName}, you are ${chosen === axis.high ? axis.highName : axis.lowName}`}>
+          <span className="type-marker" style={{ left: `${pct}%` }} />
+        </div>
+        <footer>
+          <span className={chosen === axis.low ? 'on' : undefined}>{axis.lowName}</span>
+          <span className={chosen === axis.high ? 'on' : undefined}>{axis.highName}</span>
+        </footer>
+      </div>
+    })}</div>
+
+    {type.borderline.length > 0 && <p className="journey-disclaimer" style={{ marginTop: 14 }}>
+      {type.borderline.length === 1 ? 'One letter sits' : `${type.borderline.length} letters sit`} close to the middle and could read the other way on a different day. That is ordinary — the code is a nickname, and the spectrum above it is the honest version.
+    </p>}
+  </Panel>
 }
 
 // What a fifteen-year-old actually wants from a personality result: names of
@@ -1810,13 +1952,10 @@ function CareerMatches({ results }) {
 // numbers are one click away for the student who wants them and for the
 // counselor sitting beside them.
 function headlineFor(challenge, result) {
-  if (challenge.scoring === 'bigfive') {
-    const high = TRAIT_ORDER.filter((t) => result[t] >= 3.6).map((t) => TRAIT_LABEL[t])
-    const low = TRAIT_ORDER.filter((t) => result[t] <= 2.4).map((t) => TRAIT_LABEL[t])
-    if (!high.length && !low.length) return 'Middle of the range on all five'
-    return [high.length ? `Higher: ${high.join(', ')}` : '', low.length ? `Lower: ${low.join(', ')}` : '']
-      .filter(Boolean).join(' · ')
-  }
+  // The code and its name, not a list of trait bands. This is the line the
+  // student reads first and repeats to a friend, so it carries the labels
+  // rather than five numbers they would have to interpret.
+  if (challenge.scoring === 'bigfive') return `${typeCodeOf(result).code} · ${archetypeNameOf(result)}`
   if (challenge.scoring === 'riasec') return result.code.map((s) => RIASEC_NAME[s]).join(' · ')
   if (challenge.scoring === 'values') return result.ranked.slice(0, 3).map((d) => VALUE_NAME[d]).join(' · ')
   if (challenge.scoring === 'subjects') return result.ranked.slice(0, 3).map((s) => SUBJECT_NAME[s]).join(' · ')
@@ -1825,7 +1964,7 @@ function headlineFor(challenge, result) {
 }
 
 const HEADLINE_LEAD = {
-  bigfive: 'How you tend to be',
+  bigfive: 'Your type',
   riasec: 'What you would enjoy',
   values: 'What you want from a job',
   subjects: 'Where you feel strongest',
@@ -1936,6 +2075,10 @@ function FindPersonalityPage({ notify }) {
           <b>{challenge.title}</b>
           <p>{challenge.blurb}</p>
           <small className="challenge-source">{challenge.instrument} · {challenge.licence}</small>
+          {/* Loud on purpose. This challenge is playable locally so it can be
+              judged, and the one thing that must not happen is it reaching a
+              paying student before the licence allows it. */}
+          {challenge.licencePending && <small className="licence-pending"><AlertTriangle size={11} /> {challenge.licencePending}</small>}
           <footer>
             <Badge>{result ? (saved[challenge.key] ? 'Saved' : 'Unlocked') : `${answered}/${challenge.items.length} answered`}</Badge>
             <button className="button quiet small" onClick={() => { setOpenKey(challenge.key); window.scrollTo(0, 0) }}>{result ? 'Review' : answered ? 'Continue' : 'Start'}<ChevronRight size={13} /></button>

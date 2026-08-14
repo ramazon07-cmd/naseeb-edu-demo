@@ -1009,6 +1009,85 @@ export const WIL_LEAD = {
   "conditions": "Pay, security, variety and the shape of the working day."
 }
 
+// OEJTS 1.2. The equations are the published ones; the ranges were re-derived
+// at build time rather than trusted (see gen_challenges.js).
+export const JUNG_ORDER = ["EI","SN","TF","JP"]
+export const JUNG_EQ = {
+  "EI": {
+    "c": 30,
+    "w": {
+      "3": -1,
+      "7": -1,
+      "11": -1,
+      "15": 1,
+      "19": -1,
+      "23": 1,
+      "27": 1,
+      "31": -1
+    },
+    "low": "I",
+    "high": "E"
+  },
+  "SN": {
+    "c": 12,
+    "w": {
+      "4": 1,
+      "8": 1,
+      "12": 1,
+      "16": 1,
+      "20": 1,
+      "24": -1,
+      "28": -1,
+      "32": 1
+    },
+    "low": "S",
+    "high": "N"
+  },
+  "TF": {
+    "c": 30,
+    "w": {
+      "2": -1,
+      "6": 1,
+      "10": 1,
+      "14": -1,
+      "18": -1,
+      "22": 1,
+      "26": -1,
+      "30": -1
+    },
+    "low": "F",
+    "high": "T"
+  },
+  "JP": {
+    "c": 18,
+    "w": {
+      "1": 1,
+      "5": 1,
+      "9": -1,
+      "13": 1,
+      "17": -1,
+      "21": 1,
+      "25": -1,
+      "29": 1
+    },
+    "low": "J",
+    "high": "P"
+  }
+}
+export const JUNG_THRESHOLD = 24
+export const JUNG_NAME = {
+  EI: 'Where your energy comes from',
+  SN: 'What you pay attention to',
+  TF: 'How you decide',
+  JP: 'How you deal with time',
+}
+export const JUNG_POLE = {
+  I: 'Introversion', E: 'Extraversion',
+  S: 'Sensing', N: 'Intuition',
+  F: 'Feeling', T: 'Thinking',
+  J: 'Judging', P: 'Perceiving',
+}
+
 export const challengeDone = (challenge, answers) => challenge.items.every((item) => answers[item.id])
 
 // Each scorer returns null unless its whole instrument is answered. A partial
@@ -1048,6 +1127,32 @@ export function scoreChallenge(challenge, answers) {
     for (const item of items) byDim[item.dim] = answers[item.id]
     const ranked = Object.keys(byDim).sort((a, b) => byDim[b] - byDim[a])
     return { byDim, ranked }
+  }
+
+  if (challenge.scoring === 'jung') {
+    // Items are keyed by their published number, not by array position, so the
+    // equations stay readable against the source and a reordering cannot
+    // silently rewire a scale.
+    const byNumber = {}
+    for (const item of items) byNumber[item.n] = answers[item.id]
+
+    const scores = {}, letters = {}, margins = {}
+    for (const scale of JUNG_ORDER) {
+      const { c, w, low, high } = JUNG_EQ[scale]
+      let total = c
+      for (const n of Object.keys(w)) total += w[n] * byNumber[n]
+      scores[scale] = total
+      letters[scale] = total > JUNG_THRESHOLD ? high : low
+      // Distance from the threshold, 0..16. This is the honest part: a letter
+      // one point off the line is a coin flip, and the UI says so rather than
+      // printing four letters as though all four were equally settled.
+      margins[scale] = Math.abs(total - JUNG_THRESHOLD)
+    }
+    const code = JUNG_ORDER.map((scale) => letters[scale]).join('')
+    // "Close" is within a tenth of the 8..40 span. Anything inside that would
+    // flip if the student answered one item differently on a different day.
+    const close = JUNG_ORDER.filter((scale) => margins[scale] <= 3)
+    return { scores, letters, margins, code, close }
   }
 
   if (challenge.scoring === 'subjects') {
